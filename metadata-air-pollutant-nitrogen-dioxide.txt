@@ -1,0 +1,46 @@
+# Metadata for Air Pollutant - Nitrogen Dioxide
+---
+Identifier: '21facfab-8730-4244-89b7-e433d7e4322e'
+Name: 'air-pollutant-nitrogen-dioxide'
+Title: 'Air Pollutant - Nitrogen Dioxide'
+Description: 'Annual means for nitrogen dioxide (µg/m3) are based on WHO Air Quality
+  Guidelines (global update 2005).'
+Topics:
+  - 'Environment'
+Keywords:
+  - 'NEA'
+  - 'Nitrogen Dioxide'
+  - 'Pollution'
+Publisher:
+  Name: 'National Environment Agency'
+  Admin 1:
+    Name: 'Woon Jing Shing'
+    Department: 'Policy Planning Division \ Policy Department'
+    Email: 'woon_jing_shing@nea.gov.sg'
+Sources:
+  - 'National Environment Agency'
+License: 'https://data.gov.sg/open-data-licence'
+Frequency: 'Annual'
+Coverage: '2000-01-01 to 2020-12-31'
+Last Updated: '2021-12-23T02:52:38.872969'
+Resources:
+  -
+    Identifier: 'f8060108-f102-41e2-be12-fe264a34bba4'
+    Title: 'Air Pollutant - Nitrogen Dioxide'
+    Url: 'https://storage.data.gov.sg/air-pollutant-nitrogen-dioxide/resources/air-pollutant-nitrogen-dioxide-2021-12-23T02-52-38Z.csv'
+    Format: 'CSV'
+    Coverage: '2000-01-01 to 2020-12-31'
+    Last Updated: '2021-12-23T02:52:38.389159'
+    Schema:
+      -
+        Name: 'year'
+        Title: 'Year'
+        Type: 'datetime'
+        Sub Type: 'year'
+        Format: 'YYYY'
+      -
+        Name: 'nitrogen_dioxide_mean'
+        Title: 'Nitrogen Dioxide (Mean)'
+        Type: 'numeric'
+        Sub Type: 'general'
+        Unit Of Measure: 'Microgram Per Cubic Metre'

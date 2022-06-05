@@ -1,0 +1,50 @@
+# Metadata for Air Pollutant - Sulphur Dioxide
+---
+Identifier: '77140998-ac24-4b85-8a6b-9c5e13d04a2e'
+Name: 'air-pollutant-sulphur-dioxide'
+Title: 'Air Pollutant - Sulphur Dioxide'
+Description: 'Annual means for sulphur dioxide (µg/m3) are based on Sustainable Singapore
+  Blueprint (SSB) targets.'
+Topics:
+  - 'Environment'
+Keywords:
+  - 'NEA'
+  - 'Pollution'
+  - 'Sulphur Dioxide'
+Publisher:
+  Name: 'National Environment Agency'
+  Admin 1:
+    Name: 'Woon Jing Shing'
+    Department: 'Policy Planning Division \ Policy Department'
+    Email: 'woon_jing_shing@nea.gov.sg'
+  Admin 2:
+    Name: 'Irene Tan'
+    Department: 'ITD'
+    Email: 'Irene_Tan@nea.gov.sg'
+Sources:
+  - 'National Environment Agency'
+License: 'https://data.gov.sg/open-data-licence'
+Frequency: 'Annual'
+Coverage: '2000-01-01 to 2020-12-31'
+Last Updated: '2021-12-23T02:54:08.134605'
+Resources:
+  -
+    Identifier: 'b1f52bb9-6d74-42b6-aae9-60e15a6b725f'
+    Title: 'Air Pollutant - Sulphur Dioxide'
+    Url: 'https://storage.data.gov.sg/air-pollutant-sulphur-dioxide/resources/air-pollutant-sulphur-dioxide-2021-12-23T02-54-07Z.csv'
+    Format: 'CSV'
+    Coverage: '2000-01-01 to 2020-12-31'
+    Last Updated: '2021-12-23T02:54:07.670606'
+    Schema:
+      -
+        Name: 'year'
+        Title: 'Year'
+        Type: 'datetime'
+        Sub Type: 'year'
+        Format: 'YYYY'
+      -
+        Name: 'sulphur_dioxide_mean'
+        Title: 'Sulphur Dioxide (Mean)'
+        Type: 'numeric'
+        Sub Type: 'general'
+        Unit Of Measure: 'Microgram Per Cubic Metre'

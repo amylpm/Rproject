@@ -1,0 +1,46 @@
+# Metadata for Air Pollutant - Carbon Monoxide  (Maximum 8-Hour Mean)
+---
+Identifier: '5e55b076-5d48-4c1f-b9be-bd742504bb54'
+Name: 'air-pollutant-carbon-monoxide'
+Title: 'Air Pollutant - Carbon Monoxide  (Maximum 8-Hour Mean)'
+Description: 'Annual maximum 8-hr means for carbon monoxide (mg/m3) are based on WHO
+  Air Quality Guidelines (for Europe, 2000).'
+Topics:
+  - 'Environment'
+Keywords:
+  - 'Carbon Dioxide'
+  - 'NEA'
+  - 'Pollution'
+Publisher:
+  Name: 'National Environment Agency'
+  Admin 1:
+    Name: 'Woon Jing Shing'
+    Department: 'Policy Planning Division \ Policy Department'
+    Email: 'woon_jing_shing@nea.gov.sg'
+Sources:
+  - 'National Environment Agency'
+License: 'https://data.gov.sg/open-data-licence'
+Frequency: 'Annual'
+Coverage: '2000-01-01 to 2020-12-31'
+Last Updated: '2021-12-23T03:45:44.427266'
+Resources:
+  -
+    Identifier: '9c28a8fa-9f14-4985-aadc-cff5a49c496a'
+    Title: 'Air Pollutant - Carbon Monoxide  (2nd Maximum 8-Hour Mean)'
+    Url: 'https://storage.data.gov.sg/air-pollutant-carbon-monoxide/resources/air-pollutant-carbon-monoxide-2nd-maximum-8-hour-mean-2021-12-23T03-45-43Z.csv'
+    Format: 'CSV'
+    Coverage: '2000-01-01 to 2020-12-31'
+    Last Updated: '2021-12-23T03:45:43.979080'
+    Schema:
+      -
+        Name: 'year'
+        Title: 'Year'
+        Type: 'datetime'
+        Sub Type: 'year'
+        Format: 'YYYY'
+      -
+        Name: 'co_max_8hour_mean'
+        Title: 'Co max 8hour mean'
+        Type: 'numeric'
+        Sub Type: 'general'
+        Unit Of Measure: 'Microgram Per Cubic Metre'
