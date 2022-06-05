@@ -9,22 +9,27 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-## Introduction
+## Introduction(Puvee)
 
-## Upload the data
-```{r cars}
-summary(cars)
+## Upload the data( qihan)
+```{r}
+
 ```
-## EDA
-
-
+## EDA( qihan)
+#- make columns based on each variable like PM2.5,PM 10,NO2
+#- time series plot (x is time, Y is each variable,based on city, overall)
+#- see if thereis any missing values, if have use interpolation or forward
+# taget is either pm2.5 or pm10
 
 ## Including Plots
 
 You can also embed plots, for example:
 
-```{r pressure, echo=FALSE}
-plot(pressure)
-```
+## Modelling & Results & Evaluation()
+## Time series, regression 
+## Clustering
+
+## Discussion ()
 
 Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+## Conclusion (Puvee)
