@@ -1,0 +1,79 @@
+---
+title: "Times series graph"
+author: "Qi Han"
+date: "2022/6/5"
+output: html_document
+---
+```{r}
+#read data
+df<-read.csv("../data/data.csv")
+```
+
+```{r}
+#show the structure of the data
+str(df)
+```
+```{r}
+#show the structure of the data
+summary(df)
+```
+
+```{r}
+#remove the pm2.5 that has NA values
+noPmNA<-df[!is.na(df$pm2_5),]
+summary(noPmNA)
+```
+
+
+```{r}
+#check the data of noPmNA
+table(noPmNA$state)
+```
+```{r}
+#change the type of "date" to date for the convenience of drawing
+noPmNA$date<-as.Date(noPmNA$date)
+```
+
+```{r}
+#split the dataset
+splitByState <- split(noPmNA, noPmNA$state)
+str(splitByState)
+```
+```{r}
+#assign the splited dataset to new variable
+#Dadra & Nagar Haveli          Daman & Diu                Delhi                  Goa              Gujarat       Madhya Pradesh               Odisha 
+#          Tamil Nadu            Telangana          West Bengal 
+#noPmNA_Dadra<-splitByState$`Dadra & Nagar Haveli`
+#noPmNA_Daman<-splitByState$`Daman & Diu`
+#noPmNa_Delhi<-splitByState$Delhi
+#noPmNA_Goa<-splitByState$Goa
+#noPmNA_Gujarat<-splitByState$Gujarat
+#noPmNA_Madhya<-splitByState$`Madhya Pradesh`
+#noPmNA_Odisha<-splitByState$Odisha
+#noPmNA_Tamil<-splitByState$`Tamil Nadu`
+#noPmNA_Telangana<-splitByState$Telangana
+#noPmNA_West<-splitByState$`West Bengal`
+```
+
+```{r}
+library(ggplot2)
+
+for (i in 1:length(splitByState)){
+  loopdata<-splitByState[[i]]
+  #print(loopdata)
+  #print(as.character(names(splitByState[i])))
+  #draw graph
+  print(ggplot() +geom_line(data = loopdata,aes(x = date,y = pm2_5,colour = "pm2_5"),size=1) +
+  geom_line(data = loopdata,aes(x = date,y = so2,colour = "so2"),size=1) +
+  geom_line(data = loopdata,aes(x = date,y = no2,colour = "no2"),size=1) +
+  geom_line(data = loopdata,aes(x = date,y = rspm,colour = "rspm"),size=1) +
+  ggtitle(paste("State:",as.character(names(splitByState[i])))) +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  scale_colour_manual("",values = c("pm2_5" = "red","so2"="green","no2"="blue","rspm"="yellow"))+
+  xlab("Date")+ylab("Pollution"))
+}
+
+
+```
+
+
