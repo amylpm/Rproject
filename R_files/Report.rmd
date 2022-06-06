@@ -13,17 +13,68 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ## Upload the data( qihan)
 ```{r}
-
+#read data
+df<-read.csv("../data/data.csv")
 ```
-## EDA( qihan)
-#- make columns based on each variable like PM2.5,PM 10,NO2
-#- time series plot (x is time, Y is each variable,based on city, overall)
+
+```{r}
+#show the structure of the data
+str(df)
+```
+```{r}
+#show the structure of the data
+summary(df)
+```
+## EDA(yuki& qihan)
+#- make columns based on each variable like PM2.5,PM 10,NO2(yuki)
+
+
+#- time series plot (x is time, Y is each variable,based on city, overall) (qihan)
 #- see if thereis any missing values, if have use interpolation or forward
 # taget is either pm2.5 or pm10
 
-## Including Plots
+```{r}
+#remove the pm2.5 that has NA values
+noPmNA<-df[!is.na(df$pm2_5),]
+summary(noPmNA)
+```
 
-You can also embed plots, for example:
+```{r}
+#check the data of noPmNA
+table(noPmNA$state)
+```
+```{r}
+#change the type of "date" to date for the convenience of drawing
+noPmNA$date<-as.Date(noPmNA$date)
+```
+
+```{r}
+#split the dataset
+splitByState <- split(noPmNA, noPmNA$state)
+str(splitByState)
+```
+
+```{r}
+library(ggplot2)
+
+for (i in 1:length(splitByState)){
+  loopdata<-splitByState[[i]]
+  #print(loopdata)
+  #print(as.character(names(splitByState[i])))
+  #draw graph
+  print(ggplot() +geom_line(data = loopdata,aes(x = date,y = pm2_5,colour = "pm2_5"),size=1) +
+  geom_line(data = loopdata,aes(x = date,y = so2,colour = "so2"),size=1) +
+  geom_line(data = loopdata,aes(x = date,y = no2,colour = "no2"),size=1) +
+  geom_line(data = loopdata,aes(x = date,y = rspm,colour = "rspm"),size=1) +
+  ggtitle(paste("State:",as.character(names(splitByState[i])))) +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  scale_colour_manual("",values = c("pm2_5" = "red","so2"="green","no2"="blue","rspm"="yellow"))+
+  xlab("Date")+ylab("Pollution"))
+}
+
+
+```
+
 
 ## Modelling & Results & Evaluation()
 ## Time series, regression 
