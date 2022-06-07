@@ -1,9 +1,15 @@
 ---
-title: "Data Cleaning and EDA"
-author: "Yuki"
-date: '2022-06-05'
+title: "RProject"
+author: "Amy Lang(S2127213), Chen Yu Qi (17068721), Yeoh Li Tian(s2120306), Puveemalr Parameswaran(s2127371), Qi Han(s2123517)"
+date: "6/5/2022"
 output: html_document
 ---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Introduction(Puvee)
 ## Load Libraries
 ```{r import library}
 library(ggplot2)
@@ -14,7 +20,8 @@ library(tidyr)
 
 ## Load Dataset
 ```{r load dataset}
-df=read.csv(file="../data/data.csv")
+setwd("C:/Users/Acer/Dropbox/PC/Documents/Master of Data Science/WQD7004 Programming for Data Science/wqd7004-group-project/data")
+df=read.csv(file="data.csv")
 head(df)
 ```
 
@@ -434,17 +441,48 @@ str(df_ts)
 #write.csv(df_ts,"data_ts.csv", row.names=FALSE)
 ```
 
-### time series plot 
-#1
-#1
-#1
-#1
-#1
-#1
-#1
+
+### Time Series Plot 
+
+```{r}
+#check the data of noPmNA
+table(df_ts$state)
+```
+```{r}
+#change the type of "date" to date for the convenience of drawing
+df_ts$date<-as.Date(df_ts$date)
+```
+
+```{r}
+#split the dataset
+splitByState <- split(df_ts, df_ts$state)
+str(splitByState)
+```
+
+```{r}
+library(ggplot2)
+
+for (i in 1:length(splitByState)){
+  loopdata<-splitByState[[i]]
+  #print(loopdata)
+  #print(as.character(names(splitByState[i])))
+  #draw graph
+  print(ggplot() +geom_line(data = loopdata,aes(x = date,y = pm2_5,colour = "pm2_5"),size=1) +
+  geom_line(data = loopdata,aes(x = date,y = so2,colour = "so2"),size=1) +
+  geom_line(data = loopdata,aes(x = date,y = no2,colour = "no2"),size=1) +
+  geom_line(data = loopdata,aes(x = date,y = rspm,colour = "rspm"),size=1) +
+  ggtitle(paste("State:",as.character(names(splitByState[i])))) +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  scale_colour_manual("",values = c("pm2_5" = "red","so2"="green","no2"="blue","rspm"="yellow"))+
+  xlab("Date")+ylab("Pollution"))
+}
 
 
-## 2. Create Subset for clustering Model
+```
+
+
+
+## 2. Create Subset for Clustering Model
 
 ```{r plot subset2}
 df_c=df
@@ -496,17 +534,142 @@ str(df_c)
 
 
 
-## Exploratory Data Analysis - Multivariate  
+### Exploratory Data Analysis - Multivariate  
 
-## 1. correlation
+### 1. correlation
 
 ```{r plot correlation}
-#pairs(~ so2 + no2 + rspm + spm, data=df)
-#plot(df)
+pairs(~ so2 + no2 + rspm + spm, data=df_c, col = 'blue')
+plot(df_c)
 ```
 
+RSPM and SPM seem to have slightly stonger positive relationship while the others variables seem like having poor positive relationship. 
 
-## 2. so2 with state
+### 2. Bivarite plot
+
+#### So2 with state
 ```{r plot so2 state}
+plotdata <- df_c %>%
+  group_by(state) %>%
+  summarize(mean_1 = mean(so2))
+plotdata
+ggplot(plotdata, aes(x = reorder(state, mean_1), y = mean_1)) +
+  geom_bar(stat = "identity", fill = "cornflowerblue") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))+
+  labs(title = "So2 by state", y = "Mean of SO2", x ="State")
+```
+
+Jharkhand have the highest SO2 concentration in the air followed by Uttaranchal and Uttarakhand.
+
+
+#### So2 with type
+```{r plot so2 type}
+plotdata <- df_c %>%
+  group_by(type) %>%
+  summarize(mean_1 = mean(so2))
+plotdata
+ggplot(plotdata, aes(x = reorder(type, mean_1), y = mean_1)) +
+  geom_bar(stat = "identity", fill = "cornflowerblue") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))+
+  labs(title = "So2 by area type", y = "Mean of SO2", x ="Area Type")
 
 ```
+
+Industrial area have highest So2 concentration.
+
+#### No2 with state
+```{r plot no2 state}
+plotdata <- df_c %>%
+  group_by(state) %>%
+  summarize(mean_1 = mean(no2))
+plotdata
+ggplot(plotdata, aes(x = reorder(state, mean_1), y = mean_1)) +
+  geom_bar(stat = "identity", fill = "cornflowerblue") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))+
+  labs(title = "No2 by state", y = "Mean of NO2", x ="State")
+```
+
+West Bengal have the highest NO2 concentration in the air followed by Delhi and Jharkhand.
+
+#### No2 with type
+```{r plot no2 type}
+plotdata <- df_c %>%
+  group_by(type) %>%
+  summarize(mean_1 = mean(no2))
+plotdata
+ggplot(plotdata, aes(x = reorder(type, mean_1), y = mean_1)) +
+  geom_bar(stat = "identity", fill = "cornflowerblue") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))+
+  labs(title = "No2 by area type", y = "Mean of NO2", x ="Area Type")
+```
+
+Industrial area have highest No2 concentration.
+
+#### RSPM with state
+```{r plot rspm state}
+plotdata <- df_c %>%
+  group_by(state) %>%
+  summarize(mean_1 = mean(rspm))
+plotdata
+ggplot(plotdata, aes(x = reorder(state, mean_1), y = mean_1)) +
+  geom_bar(stat = "identity", fill = "cornflowerblue") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))+
+  labs(title = "RSPM by state", y = "Mean of RSPM", x ="State")
+```
+
+Punjab have the highest RSPM index followed by Delhi and Uttar Pradesh.
+
+#### RSPM with type
+```{r plot rspm type}
+plotdata <- df_c %>%
+  group_by(type) %>%
+  summarize(mean_1 = mean(rspm))
+plotdata
+ggplot(plotdata, aes(x = reorder(type, mean_1), y = mean_1)) +
+  geom_bar(stat = "identity", fill = "cornflowerblue") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))+
+  labs(title = "RSPM by area type", y = "Mean of RSPM", x ="Area Type")
+```
+
+Industrial area have highest RSPM index. 
+
+
+
+#### SPM with state
+```{r plot spm state}
+plotdata <- df_c %>%
+  group_by(state) %>%
+  summarize(mean_1 = mean(spm))
+plotdata
+ggplot(plotdata, aes(x = reorder(state, mean_1), y = mean_1)) +
+  geom_bar(stat = "identity", fill = "cornflowerblue") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))+
+  labs(title = "SPM by state", y = "Mean of SPM", x ="State")
+
+```
+
+Delhi have the highest SPM index followed by Uttar Pradesh and Uttarakhand.
+
+#### SPM with type
+```{r plot spm type}
+plotdata <- df_c %>%
+  group_by(type) %>%
+  summarize(mean_1 = mean(spm))
+plotdata
+ggplot(plotdata, aes(x = reorder(type, mean_1), y = mean_1)) +
+  geom_bar(stat = "identity", fill = "cornflowerblue") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))+
+  labs(title = "SPM by area type", y = "Mean of SPM", x ="Area Type")
+```
+
+Industrial area have highest SPM index. 
+
+
+## Modelling & Results & Evaluation()
+## Time series, regression 
+## Clustering
+
+## Discussion ()
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+## Conclusion (Puvee)
