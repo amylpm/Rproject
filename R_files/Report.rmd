@@ -16,12 +16,17 @@ library(ggplot2)
 library(dplyr)
 library(scales)
 library(tidyr)
+library(rstudioapi)
 ```
 
 ## Load Dataset
+YLT: I changed this part, now u can just run and the path is set automatically
 ```{r load dataset}
-setwd("C:/Users/Acer/Dropbox/PC/Documents/Master of Data Science/WQD7004 Programming for Data Science/wqd7004-group-project/data")
-df=read.csv(file="data.csv")
+main_dir<- dirname(dirname(rstudioapi::getSourceEditorContext()$path))
+datadir<- paste0(main_dir,"/data")
+data_path<- paste0(datadir,"/data.csv")
+
+df=read.csv(data_path)
 head(df)
 ```
 
@@ -505,10 +510,10 @@ for(i in 1:7){
 location, so2,no2,rspm and spm have missing values
 
 ```{r plot subset2 cleaning 1}
-df_c$type[is.na(df$so2)]= mean(df_c$so2, na.rm = TRUE)
-df_c$type[is.na(df$no2)]= mean(df_c$no2, na.rm = TRUE)
-df_c$type[is.na(df$rspm)]= mean(df_c$rspm, na.rm = TRUE)
-df_c$type[is.na(df$spm)]= mean(df_c$spm, na.rm = TRUE)
+df_c$so2[is.na(df$so2)]= mean(df_c$so2, na.rm = TRUE)
+df_c$no2[is.na(df$no2)]= mean(df_c$no2, na.rm = TRUE)
+df_c$rspm[is.na(df$rspm)]= mean(df_c$rspm, na.rm = TRUE)
+df_c$spm[is.na(df$spm)]= mean(df_c$spm, na.rm = TRUE)
 df_c <- df_c %>% na.omit(df_c)
 
 for(i in 1:7){
@@ -528,7 +533,8 @@ str(df_c)
 ### Export Subset 2
 
 ```{r export subset2 csv}
-#write.csv(df_c,"data_c.csv", row.names=FALSE)
+data_c_path = paste0(datadir, "/data_c.csv")
+write.csv(df_c, data_c_path, row.names=FALSE)
 ```
 
 
