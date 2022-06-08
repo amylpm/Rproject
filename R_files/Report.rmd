@@ -9,9 +9,11 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-## Introduction(Puvee)
+# Introduction(Puvee)
+
+# Data Preprocessing with Exploratory Data Analysis (EDA)
 ## Load Libraries
-```{r import library}
+```{r import library, message=FALSE}
 library(ggplot2)
 library(dplyr)
 library(scales)
@@ -65,7 +67,7 @@ head(df)
 ```
 
 
-# Exploratary Data Analysis - Univariate
+## Exploratary Data Analysis - Univariate
 
 Let's observe the other variables one by one. 
 
@@ -340,7 +342,7 @@ There are outliers in the dataset, we will be cleaning it later.
 
 
 
-# Cleaning Outliers
+## Cleaning Outliers
 
 ```{r remove outliers and plot}
 
@@ -386,7 +388,7 @@ boxplot(df$pm2_5,
 The outliers has been removed. 
 
 
-#  Create Subset
+##  Create Subset
 
 Because we want to build two models,
 
@@ -395,7 +397,7 @@ i) time series regression for predicting pm2.5 for year 2014 and 2015.
 ii) clustering using all data. 
 so, we first make a subset for first model and clean it. 
 
-## 1. Create Subset for Time Series Regression Model
+### 1. Create Subset for Time Series Regression Model
 
 ```{r plot subset1}
 df_ts=subset(df, !is.na(pm2_5))
@@ -487,10 +489,13 @@ for (i in 1:length(splitByState)){
 
 
 
-## 2. Create Subset for Clustering Model
+### 2. Create Subset for Clustering Model
 
 ```{r plot subset2}
 df_c=df
+data_c_path = paste0(datadir, "/data_c.csv")
+write.csv(df_c, data_c_path, row.names=FALSE)
+
 df_c$pm2_5=NULL
 df_c$date=NULL
 head(df_c)
@@ -533,8 +538,8 @@ str(df_c)
 ### Export Subset 2
 
 ```{r export subset2 csv}
-data_c_path = paste0(datadir, "/data_c.csv")
-write.csv(df_c, data_c_path, row.names=FALSE)
+#data_c_path = paste0(datadir, "/data_c.csv")
+#write.csv(df_c, data_c_path, row.names=FALSE)
 ```
 
 
@@ -543,13 +548,13 @@ write.csv(df_c, data_c_path, row.names=FALSE)
 ### Exploratory Data Analysis - Multivariate  
 
 ### 1. correlation
-
+YLT: I commenting out this plot coz it takes too long to knit. Only include it back in final version.
 ```{r plot correlation}
-pairs(~ so2 + no2 + rspm + spm, data=df_c, col = 'blue')
-plot(df_c)
+#pairs(~ so2 + no2 + rspm + spm, data=df_c, col = 'blue')
+#plot(df_c)
 ```
 
-RSPM and SPM seem to have slightly stonger positive relationship while the others variables seem like having poor positive relationship. 
+RSPM and SPM seem to have slightly stronger positive relationship while the others variables seem like having poor positive relationship. 
 
 ### 2. Bivarite plot
 
@@ -672,8 +677,124 @@ Industrial area have highest SPM index.
 
 
 ## Modelling & Results & Evaluation()
-## Time series, regression 
-## Clustering
+### Time series, regression 
+### Clustering
+Besides time series modelling, we also do a clustering to identify cities (location) with similar air quality. We cluster them by using only the latest 1 year (2015-01-01 to 2015-12-31) of data, with the mean value of numerical variables (SO2, NO2, RSPM, SPM, PM2.5) as the features.
+
+First we import relevant library. We then filter the recent data and obtain the features mentioned above:
+```{r message=FALSE}
+library(cluster)
+library(lubridate)
+
+start_date<- ymd("2015-01-01")
+rec_clus_data<- df[df$date > start_date, ]
+
+### remove rows with missing location
+rec_clus_data<- rec_clus_data[!is.na(rec_clus_data$location), ]
+
+loc_data<- rec_clus_data %>% group_by(location) %>%
+  summarise(mean_so2 = mean(so2, na.rm=TRUE),
+            mean_no2 = mean(no2, na.rm=TRUE),
+            mean_rspm = mean(rspm, na.rm=TRUE),
+            mean_spm = mean(spm, na.rm=TRUE),
+            mean_pm2_5 = mean(pm2_5, na.rm=TRUE)
+  ) %>% data.frame()
+
+head(loc_data)
+```
+Next we check and handle the missing values.
+```{r}
+num_loc = nrow(loc_data)
+
+for (col in colnames(loc_data) ){
+  num_na<- sum(is.na(loc_data[col]))
+  perc_na<- round(100*num_na/num_loc, digits=2)
+  print(paste(col, num_na, perc_na))
+}
+```
+
+We see that SPM (100%) and PM2.5 (75.2%) have very large amount of missing values. We can only drop these features as imputing them will introduce large bias in the clustering model. \n
+For SO2 and NO2, we will impute using mean value.
+
+```{r}
+loc_data$mean_so2[is.na(loc_data$mean_so2)]= mean(loc_data$mean_so2, na.rm = TRUE)
+loc_data$mean_no2[is.na(loc_data$mean_no2)]= mean(loc_data$mean_no2, na.rm = TRUE)
+
+#### set location as row names
+rownames(loc_data)<- loc_data$location
+
+#### drop unnecessary columns
+clean_loc_data<- loc_data %>% select(-c(mean_spm, mean_pm2_5, location))
+
+head(clean_loc_data)
+```
+
+Before clustering the data, we need to scale the features so that their magnitude are of the same order.
+
+```{r}
+scaled_loc_data<- clean_loc_data
+for (mean_col in colnames(scaled_loc_data)){
+ scaled_loc_data[mean_col]<- scale(scaled_loc_data[mean_col], center=TRUE, scale=TRUE)
+}
+```
+
+Now we can do clustering. We use the elbow method to obtain a suitable number of clusters, k.
+
+```{r}
+max_k<- 20
+wcss<- rep(NA, max_k-1)
+
+for (k in c(2:max_k)){
+  k_clus<- kmeans(scaled_loc_data, centers = k, nstart = 10)
+  wcss[k-1]<- k_clus$tot.withinss
+}
+
+wcss_df<- data.frame(k=c(2:max_k), wcss = wcss)
+wcss_fig<- wcss_df %>% ggplot(aes(x=k, y=wcss)) + 
+  geom_line() + geom_point()
+
+print(wcss_fig)
+```
+
+Here, we see that at around k=8 the Within Cluster Sum of Squared (WCSS) value decreases slowly. Thus we will pick optimal k as 8 to do the clustering.
+
+```{r}
+best_k<- 8
+
+clus_loc<- kmeans(scaled_loc_data, centers = scaled_loc_data[1:best_k,], nstart = 10)
+clus_grp<- data.frame(clus_loc$cluster) %>% setNames("cluster")
+merged_res<- merge(clean_loc_data, clus_grp, by ='row.names', all=TRUE)
+merged_res$cluster<- as.factor(merged_res$cluster)
+
+### center of each cluster
+center_data<- merged_res %>% group_by(cluster) %>%
+  summarise(num_city = n(),
+            cen_mean_so2 = mean(mean_so2, na.rm=TRUE),
+            cen_mean_no2 = mean(mean_no2, na.rm=TRUE),
+            cen_mean_rspm = mean(mean_rspm, na.rm=TRUE),
+  ) %>% data.frame()
+
+print(center_data)
+```
+
+The above table shows the centroid for each cluster. To better visualise the difference among the clusters, we can plot the box plot of each features for the clusters:
+
+```{r}
+clus_vis_so2<- merged_res %>% ggplot(aes(x=cluster, y=mean_so2)) +
+  geom_boxplot()
+print(clus_vis_so2)
+
+clus_vis_no2<- merged_res %>% ggplot(aes(x=cluster, y=mean_no2)) +
+  geom_boxplot()
+print(clus_vis_no2)
+
+clus_vis_rspm<- merged_res %>% ggplot(aes(x=cluster, y=mean_rspm)) +
+  geom_boxplot()
+print(clus_vis_rspm)
+```
+
+From the plot, we see that cities in cluster 6, 7 and 8 have high values in all 3 features, which represents low air quality. Interestingly, these clusters have significantly high value in exactly 1 of the feature: cluster 6 is high in RSPM, cluster 7 in SO2 and cluster 8 in NO2.
+For the others, cities in cluster 5 have the best air quality with lowest value in all 3 features. Cluster 2, 3, 4 have moderate value in all 3 features while cluster 1 has moderate value in SO2 and NO2 but with high RSPM.
 
 ## Discussion ()
 
