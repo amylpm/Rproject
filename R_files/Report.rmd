@@ -19,6 +19,14 @@ library(dplyr)
 library(scales)
 library(tidyr)
 library(rstudioapi)
+library(tidyverse)
+library(lubridate,magrittr)
+library(ggfortify)
+library(tseries)
+library('vars')
+library('quantmod')
+library(LINselect)
+library(forecast)
 ```
 
 ## Load Dataset
@@ -428,7 +436,7 @@ for(i in 1:8){
   print(paste(names(df_ts[i]),x))}
 ```
 
-There is no missing value now and we can export this subset out for visualization and modelling of time series regression. 
+There is no missing value now and we can export this subset out for further enhancement such as visualization, modifications and modelling depending on the requirement of time series modelling. 
 
 
 ### Rearrange According To Date
@@ -487,8 +495,52 @@ for (i in 1:length(splitByState)){
 
 ```
 
+Since there are many states, location and type of development, we would like to focus on Madhya Pradesh regardless of location and type of development when conducting the time series modelling. We continue the data preparation for that purpose. 
 
+```{r}
+data = df_ts
 
+```
+Convert the date from char type into date type.
+```{r}
+data$date=as.Date(data$date, "%Y-%m-%d")
+```
+
+Create a separate dataframe for state Madhya Pradesh.
+
+```{r}
+Madhya_Pradesh = data[which (data$state == 'Madhya Pradesh'), ] 
+```
+
+Remove pther variables which are location and type
+```{r}
+Madhya_Pradesh = subset(data, select = -c(state,location,type))
+```
+Since there are repeating entries for the same date which may be due to location and type, we group the date by mean.
+```{r}
+Madhya_Pradesh$day <- floor_date(Madhya_Pradesh$date, "day")
+Madhya_Pradesh = aggregate(cbind(so2,no2,rspm,pm2_5) ~ day, data = Madhya_Pradesh, FUN = mean, na.rm = TRUE)
+```
+
+Create a train and test set (test set is set for 30 days) for modelling and validation purpose.
+```{r}
+MP_train= Madhya_Pradesh[1:697, ]
+MP_train=subset(MP_train,select = -c(day))
+MP_test= Madhya_Pradesh[698:727, ]
+```
+
+Using ts() to convert the dataframe into a time series object. To utilize ts(), we might have to calculate the day in number for ts().
+```{r}
+#as.numeric(as.Date("2014-01-01") - as.Date("2014-01-01"))
+MP_train=ts(MP_train,start = c(2014,0),frequency = 365)
+```
+
+We replot the time series graph for training set of Madhya Pradesh.
+```{r}
+autoplot(MP_train) +
+  ggtitle("Time Series Plot of the Madhaya Pradesh Time-Series") +
+  theme(plot.title = element_text(hjust = 0.5))
+```
 ### 2. Create Subset for Clustering Model
 
 ```{r plot subset2}
@@ -677,7 +729,55 @@ Industrial area have highest SPM index.
 
 
 ## Modelling & Results & Evaluation()
-### Time series, regression 
+### Time series
+####Since the dataset can be listed in a series of data points ordered in time, we decided to proceed with time series as our analysis. The independent variable is usually associated with time and the dependent variable is the target of the prediction. Due to the fact that there is more than one time-dependent variable, we will utilize the Multivariate Time series which the prediction not only depends on the past values but also dependent on other variables. 
+
+First, we have to conduct the stationarity test as plotting a graph sometimes may not be adequate to determine whether the variables are stationary. We use Augmented Dickey-Fuller (ADF) Test in R to determine the stationarity of the data.
+```{r}
+apply(MP_train, 2, adf.test)
+```
+
+Since all data is stationary, we may proceed to modelling without differencing. We will utilize the Vector Autoregression model (VAR) to capture the relationship within a multivariate time series. Next, we will determine the lag p for the VAR(p) model. 
+```{r}
+VARselect(MP_train, 
+          type = "none", #type of deterministic regressors to include. We use none because the time series was made stationary using differencing above. 
+          lag.max = 20) #highest lag order n= 10
+```
+
+The highest lag according to the lag selection is 10. We proceed by creating the model.
+```{r}
+var.a <- vars::VAR(MP_train,
+                   lag.max = 10, #highest lag order for lag length selection according to the choosen ic
+                   ic = "AIC", #information criterion
+                   type = "none") #type of deterministic regressors to include
+```
+
+The result summaries of the VAR model fitting function. 
+```{r}
+summary(var.a)
+```
+
+We will use Granger test for causality where the null hypothesis is the lagged x-values do not explain the variation in y. In other words, it assumes that independent variable does not cause the dependent variable. All variable of multivariate time series have to be stationary for causality function to give reliable results.
+```{r}
+causality(var.a, #VAR model
+          cause = c("pm2_5")) #dependent variable. If not specified then first column of x is used. Multiple variables can be used. 
+```
+The results shows that the null hypothesis is rejected and the independent variables can explain the PM 2.5.
+
+Since the model is adequate, we proceed with forecasting and plot the forecast.
+```{r}
+fcast = predict(var.a, n.ahead =30) # we forecast over a month
+par(mar = c(2.5,2.5,2.5,2.5))
+plot(fcast)
+```
+
+We continue with evaluation.
+```{r}
+f.val= fcast$fcst$pm2_5[,1]
+a.val= MP_test[['pm2_5']] # the accuracy requires numeric vector only. 
+accuracy(f.val,a.val)
+```
+
 ### Clustering
 Besides time series modelling, we also do a clustering to identify cities (location) with similar air quality. We cluster them by using only the latest 1 year (2015-01-01 to 2015-12-31) of data, with the mean value of numerical variables (SO2, NO2, RSPM, SPM, PM2.5) as the features.
 

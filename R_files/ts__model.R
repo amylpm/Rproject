@@ -54,11 +54,11 @@ apply(MP_train, 2, adf.test)
 #since all data is stationary proceed to modelling
 #select the n var VAR(n)
 VARselect(MP_train, 
-          type = "none", #type of deterministic regressors to include. We use none becasue the time series was made stationary using differencing above. 
+          type = "none", #type of deterministic regressors to include. We use none because the time series was made stationary using differencing above. 
           lag.max = 20) #highest lag order
 #n= 10 
 var.a <- vars::VAR(MP_train,
-                   lag.max = 10, #highest lag order for lag length selection according to the choosen ic
+                   lag.max = 20, #highest lag order for lag length selection according to the choosen ic
                    ic = "AIC", #information criterion
                    type = "none") #type of deterministic regressors to include
 
@@ -69,7 +69,7 @@ serial.test(var.a)
 
 
 # Granger test for causality
-# Rejected the null hypothesis for the test is that lagged x-values do not explain the variation in y. In other words, it assumes that x(t) doesn't Granger-cause y(t). 
+#Rejected the null hypothesis for the test is that lagged x-values do not explain the variation in y. In other words, it assumes that x(t) doesn't Granger-cause y(t). 
 #for causality function to give reliable results we need all the variables of the multivariate time series to be stationary. 
 causality(var.a, #VAR model
           cause = c("pm2_5")) #cause variable. If not specified then first column of x is used. Multiple variables can be used. 
