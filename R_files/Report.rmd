@@ -65,7 +65,6 @@ df$sampling_date=NULL
 df$stn_code=NULL
 df$agency=NULL
 df$location_monitoring_station=NULL
-df$location=NULL
 head(df)
 ```
 
@@ -90,6 +89,25 @@ ggplot(plotdata, aes(x=reorder(state, n),y=pct)) +
 ```
 
 Maharashtra have most observations followed by Uttar Pradesh and others. 
+
+### Categorical variable - Location
+```{r plot location}
+plotdata <- df %>%
+  count(location) %>%
+  mutate(pct = n / sum(n),
+         pctlabel = paste0(round(pct*100), "%")) %>%
+  arrange(desc(n)) %>%
+  head(10)
+ggplot(plotdata, aes(x = reorder(location, n),y=pct)) +
+  geom_bar(stat = "identity", fill = "lightgreen") +
+  geom_text(aes(label = pctlabel), vjust = -0.25) +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))+
+  scale_y_continuous(labels = percent) +
+  labs(y = "Percentage", title = "Percentage of Recording From Each Location")
+```
+
+Top 10 recording location is displayed. Guwahati have the highest percentage of recording. 
+
 
 ### Categorical Variable - Type
 ```{r plot Type}
@@ -177,9 +195,9 @@ so, we first make a subset for first model and clean it.
 ### 1. Create Subset for Time Series Regression Model
 
 ```{r plot subset1}
-df_ts=subset(df, !is.na(pm2_5))
-head(df_ts)
-str(df_ts)
+data=subset(df, !is.na(pm2_5))
+head(data)
+str(data)
 ```
 
 There is only 9314 rows that have pm2.5 value.  
@@ -187,22 +205,22 @@ There is only 9314 rows that have pm2.5 value.
 ### Cleaning Missing Values
 
 ```{r plot subset missing value 1}
-for(i in 1:8){
-  x=sum(is.na(df_ts[i]))
-  print(paste(names(df_ts[i]),x))}
+for(i in 1:9){
+  x=sum(is.na(data[i]))
+  print(paste(names(data[i]),x))}
 ```
 
 so2,no2,rspm have missing values. spm is blank. 
 
 ```{r plot subset cleaning 1}
-df_ts$so2[is.na(df_ts$so2)]= mean(df_ts$so2, na.rm = TRUE)
-df_ts$no2[is.na(df_ts$no2)]= mean(df_ts$no2, na.rm = TRUE)
-df_ts$rspm[is.na(df_ts$rspm)]= mean(df_ts$rspm, na.rm = TRUE)
-df_ts$spm=NULL
+data$so2[is.na(data$so2)]= mean(data$so2, na.rm = TRUE)
+data$no2[is.na(data$no2)]= mean(data$no2, na.rm = TRUE)
+data$rspm[is.na(data$rspm)]= mean(data$rspm, na.rm = TRUE)
+data$spm=NULL
 
-for(i in 1:7){
-  x=sum(is.na(df_ts[i]))
-  print(paste(names(df_ts[i]),x))}
+for(i in 1:8){
+  x=sum(is.na(data[i]))
+  print(paste(names(data[i]),x))}
 ```
 
 There is no missing value now and we can export this subset out for further enhancement such as visualization, modifications and modelling depending on the requirement of time series modelling. 
@@ -211,14 +229,14 @@ There is no missing value now and we can export this subset out for further enha
 ### Rearrange According To Date
 
 ```{r rearrange}
-df_ts$date<-as.Date(df_ts$date, "%Y-%m-%d")
-df_ts=df_ts[(order(df_ts$date,decreasing=FALSE)),]
+data$date<-as.Date(data$date, "%Y-%m-%d")
+data=data[(order(data$date,decreasing=FALSE)),]
 ```
 
 ### Export Subset 1
 
 ```{r export subset1 csv}
-#write.csv(df_ts,"data_ts.csv", row.names=FALSE)
+#write.csv(data,"data_ts.csv", row.names=FALSE)
 ```
 
 
@@ -226,13 +244,13 @@ df_ts=df_ts[(order(df_ts$date,decreasing=FALSE)),]
 
 ```{r}
 #check the data of noPmNA
-table(df_ts$state)
+table(data$state)
 ```
 
 
 ```{r}
 #split the dataset
-splitByState <- split(df_ts, df_ts$state)
+splitByState <- split(data, data$state)
 str(splitByState)
 ```
 
@@ -259,11 +277,7 @@ for (i in 1:length(splitByState)){
 
 Since there are many states, location and type of development, we would like to focus on Madhya Pradesh regardless of location and type of development when conducting the time series modelling. We continue the data preparation for that purpose. 
 
-```{r}
-data = df_ts
-```
-
-Create a separate dataframe for state Madhya Pradesh.
+so, create a separate dataframe for state Madhya Pradesh.
 
 ```{r}
 Madhya_Pradesh = data[which (data$state == 'Madhya Pradesh'), ] 
@@ -271,7 +285,7 @@ Madhya_Pradesh = data[which (data$state == 'Madhya Pradesh'), ]
 
 Remove other variables which are location and type
 ```{r}
-Madhya_Pradesh = subset(data, select = -c(state,type))
+Madhya_Pradesh = subset(data, select = -c(state, location, type))
 ```
 Since there are repeating entries for the same date which may be due to  type, we group the date by mean.
 
@@ -320,7 +334,7 @@ We dropped date because clustering model no need time variable.
 ### Cleaning Missing Values
 
 ```{r plot subset2 missing value 1}
-for(i in 1:6){
+for(i in 1:7){
   x=sum(is.na(df_c[i]))
   print(paste(names(df_c[i]),x))}
 ```
@@ -334,7 +348,7 @@ df_c$rspm[is.na(df_c$rspm)]= mean(df_c$rspm, na.rm = TRUE)
 df_c$spm[is.na(df_c$spm)]= mean(df_c$spm, na.rm = TRUE)
 df_c <- df_c %>% na.omit(df_c)
 
-for(i in 1:6){
+for(i in 1:7){
   x=sum(is.na(df_c[i]))
   print(paste(names(df_c[i]),x))}
 
@@ -360,7 +374,6 @@ str(df_c)
 ### Exploratory Data Analysis - Multivariate  
 
 ### 1. correlation
-YLT: I commenting out this plot coz it takes too long to knit. Only include it back in final version.
 ```{r plot correlation}
 #pairs(~ so2 + no2 + rspm + spm, data=df_c, col = 'blue')
 #plot(df_c)
@@ -368,7 +381,7 @@ knitr::include_graphics("plot correlation-1.png")
 knitr::include_graphics("plot correlation-2.png")
 ```
 
-so2 and no2 seem to have slightly stronger positive relationship while the others variables seem like having poor relationship. 
+so2 and no2 seem to have slightly positive relationship while the others variables seem like having poor relationship. 
 
 
 ### 2. Bivarite plot
