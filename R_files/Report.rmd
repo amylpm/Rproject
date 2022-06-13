@@ -182,142 +182,8 @@ There are 34646 rows of missing value in "so2", 16233 rows of missing value in â
 We can observe that all so2, no2, rspm, spm and pm2_5 is right skewed, data scattered around lower value.
 
 
+## Creating Clean Data set for multivariate EDA
 
-##  Create Subset
-
-Because we want to build two models,
-
-i) time series regression for predicting pm2.5 for year 2014 and 2015. 
-
-ii) clustering using all data. 
-so, we first make a subset for first model and clean it. 
-
-### 1. Create Subset for Time Series Regression Model
-
-```{r plot subset1}
-data=subset(df, !is.na(pm2_5))
-head(data)
-str(data)
-```
-
-There is only 9314 rows that have pm2.5 value.  
-
-### Cleaning Missing Values
-
-```{r plot subset missing value 1}
-for(i in 1:9){
-  x=sum(is.na(data[i]))
-  print(paste(names(data[i]),x))}
-```
-
-so2,no2,rspm have missing values. spm is blank. 
-
-```{r plot subset cleaning 1}
-data$so2[is.na(data$so2)]= mean(data$so2, na.rm = TRUE)
-data$no2[is.na(data$no2)]= mean(data$no2, na.rm = TRUE)
-data$rspm[is.na(data$rspm)]= mean(data$rspm, na.rm = TRUE)
-data$spm=NULL
-
-for(i in 1:8){
-  x=sum(is.na(data[i]))
-  print(paste(names(data[i]),x))}
-```
-
-There is no missing value now and we can export this subset out for further enhancement such as visualization, modifications and modelling depending on the requirement of time series modelling. 
-
-
-### Rearrange According To Date
-
-```{r rearrange}
-data$date<-as.Date(data$date, "%Y-%m-%d")
-data=data[(order(data$date,decreasing=FALSE)),]
-```
-
-### Export Subset 1
-
-```{r export subset1 csv}
-#write.csv(data,"data_ts.csv", row.names=FALSE)
-```
-
-
-### Time Series Plot 
-
-```{r}
-#check the data of noPmNA
-table(data$state)
-```
-
-
-```{r}
-#split the dataset
-splitByState <- split(data, data$state)
-str(splitByState)
-```
-
-```{r}
-library(ggplot2)
-
-for (i in 1:length(splitByState)){
-  loopdata<-splitByState[[i]]
-  #print(loopdata)
-  #print(as.character(names(splitByState[i])))
-  #draw graph
-  print(ggplot() +geom_line(data = loopdata,aes(x = date,y = pm2_5,colour = "pm2_5"),size=1) +
-  geom_line(data = loopdata,aes(x = date,y = so2,colour = "so2"),size=1) +
-  geom_line(data = loopdata,aes(x = date,y = no2,colour = "no2"),size=1) +
-  geom_line(data = loopdata,aes(x = date,y = rspm,colour = "rspm"),size=1) +
-  ggtitle(paste("State:",as.character(names(splitByState[i])))) +
-  theme(plot.title = element_text(hjust = 0.5)) +
-  scale_colour_manual("",values = c("pm2_5" = "red","so2"="green","no2"="blue","rspm"="yellow"))+
-  xlab("Date")+ylab("Pollution"))
-}
-
-
-```
-
-Since there are many states, location and type of development, we would like to focus on Madhya Pradesh regardless of location and type of development when conducting the time series modelling. We continue the data preparation for that purpose. 
-
-so, create a separate dataframe for state Madhya Pradesh.
-
-```{r}
-Madhya_Pradesh = data[which (data$state == 'Madhya Pradesh'), ] 
-```
-
-Remove other variables which are location and type
-```{r}
-Madhya_Pradesh = subset(data, select = -c(state, location, type))
-```
-Since there are repeating entries for the same date which may be due to  type, we group the date by mean.
-
-```{r}
-Madhya_Pradesh$day <- floor_date(Madhya_Pradesh$date, "day")
-Madhya_Pradesh = aggregate(cbind(so2,no2,rspm,pm2_5) ~ day, data = Madhya_Pradesh, FUN = mean, na.rm = TRUE)
-```
-
-Create a train and test set (test set is set for 30 days) for modelling and validation purpose.
-```{r}
-MP_train= Madhya_Pradesh[1:697, ]
-MP_train=subset(MP_train,select = -c(day))
-MP_test= Madhya_Pradesh[698:727, ]
-```
-
-Using ts() to convert the dataframe into a time series object. To utilize ts(), we might have to calculate the day in number for ts().
-
-```{r}
-#as.numeric(as.Date("2014-01-01") - as.Date("2014-01-01"))
-MP_train=ts(MP_train,start = c(2014,0),frequency = 365)
-```
-
-We replot the time series graph for training set of Madhya Pradesh.
-
-```{r}
-autoplot(MP_train) +
-  ggtitle("Time Series Plot of the Madhaya Pradesh Time-Series") +
-  theme(plot.title = element_text(hjust = 0.5))
-```
-
-
-### 2. Create Subset for Clustering Model
 
 ```{r plot subset2}
 df_c=df
@@ -362,7 +228,7 @@ head(df_c)
 str(df_c)
 ```
 
-### Export Subset 2
+### Export Subset if needed
 
 ```{r export subset2 csv}
 #data_c_path = paste0(datadir, "/data_c.csv")
@@ -472,10 +338,140 @@ print(plot4, vp = vplayout(2, 2))
 Industrial area have highest So2 concentration, No2 concentration, RSPM index and SPM index. 
 
 
-## Modelling & Results & Evaluation()
-### Time series
-####Since the dataset can be listed in a series of data points ordered in time, we decided to proceed with time series as our analysis. The independent variable is usually associated with time and the dependent variable is the target of the prediction. Due to the fact that there is more than one time-dependent variable, we will utilize the Multivariate Time series which the prediction not only depends on the past values but also dependent on other variables. 
 
+##  Create Subset
+### Create Subset for Time Series Regression Model
+From the original data set, we also produce a clean data for time series regression purposes. 
+The goal is to create a data set for predicting pm2.5 using the data from year 2014 and 2015. 
+```{r plot subset1}
+data=subset(df, !is.na(pm2_5))
+head(data)
+str(data)
+```
+
+There is only 9314 rows that have pm2.5 value.  
+
+### Cleaning Missing Values
+
+```{r plot subset missing value 1}
+for(i in 1:9){
+  x=sum(is.na(data[i]))
+  print(paste(names(data[i]),x))}
+```
+
+so2,no2,rspm have missing values. spm is blank. 
+
+```{r plot subset cleaning 1}
+data$so2[is.na(data$so2)]= mean(data$so2, na.rm = TRUE)
+data$no2[is.na(data$no2)]= mean(data$no2, na.rm = TRUE)
+data$rspm[is.na(data$rspm)]= mean(data$rspm, na.rm = TRUE)
+data$spm=NULL
+
+for(i in 1:8){
+  x=sum(is.na(data[i]))
+  print(paste(names(data[i]),x))}
+```
+
+There is no missing value now and we can export this subset out for further enhancement such as visualization, modifications and modelling depending on the requirement of time series modelling. 
+
+
+### Rearrange According To Date
+
+```{r rearrange}
+data$date<-as.Date(data$date, "%Y-%m-%d")
+data=data[(order(data$date,decreasing=FALSE)),]
+```
+
+### Export Subset if needed
+
+```{r export subset1 csv}
+#write.csv(data,"data_ts.csv", row.names=FALSE)
+```
+
+
+### Time Series Plot 
+
+```{r}
+#check the data of noPmNA
+table(data$state)
+```
+
+
+```{r}
+#split the dataset
+splitByState <- split(data, data$state)
+str(splitByState)
+```
+
+```{r}
+library(ggplot2)
+
+for (i in 1:length(splitByState)){
+  loopdata<-splitByState[[i]]
+  #print(loopdata)
+  #print(as.character(names(splitByState[i])))
+  #draw graph
+  print(ggplot() +geom_line(data = loopdata,aes(x = date,y = pm2_5,colour = "pm2_5"),size=1) +
+  geom_line(data = loopdata,aes(x = date,y = so2,colour = "so2"),size=1) +
+  geom_line(data = loopdata,aes(x = date,y = no2,colour = "no2"),size=1) +
+  geom_line(data = loopdata,aes(x = date,y = rspm,colour = "rspm"),size=1) +
+  ggtitle(paste("State:",as.character(names(splitByState[i])))) +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  scale_colour_manual("",values = c("pm2_5" = "red","so2"="green","no2"="blue","rspm"="yellow"))+
+  xlab("Date")+ylab("Pollution"))
+}
+
+
+```
+
+## Modelling & Results & Evaluation
+
+### Time series
+
+Since the dataset can be listed in a series of data points ordered in time, we decided to proceed with time series as our analysis. The independent variable is usually associated with time and the dependent variable is the target of the prediction. Due to the fact that there is more than one time-dependent variable, we will utilize the Multivariate Time series which the prediction not only depends on the past values but also dependent on other variables. 
+
+Since there are many states, location and type of development, we would like to focus on Madhya Pradesh regardless of location and type of development when conducting the time series modelling. We continue the data preparation for that purpose. 
+
+Thus we create a separate data frame for state Madhya Pradesh.
+
+```{r}
+Madhya_Pradesh = data[which (data$state == 'Madhya Pradesh'), ] 
+```
+
+Remove other variables which are location and type
+```{r}
+Madhya_Pradesh = subset(data, select = -c(state, location, type))
+```
+Since there are repeating entries for the same date which may be due to location and type, we group the date by mean.
+
+```{r}
+Madhya_Pradesh$day <- floor_date(Madhya_Pradesh$date, "day")
+Madhya_Pradesh = aggregate(cbind(so2,no2,rspm,pm2_5) ~ day, data = Madhya_Pradesh, FUN = mean, na.rm = TRUE)
+```
+
+Create a train and test set (test set is set for 30 days) for modelling and validation purpose.
+```{r}
+MP_train= Madhya_Pradesh[1:697, ]
+MP_train=subset(MP_train,select = -c(day))
+MP_test= Madhya_Pradesh[698:727, ]
+```
+
+Using ts() to convert the dataframe into a time series object. To utilize ts(), we might have to calculate the day in number for ts().
+
+```{r}
+#as.numeric(as.Date("2014-01-01") - as.Date("2014-01-01"))
+MP_train=ts(MP_train,start = c(2014,0),frequency = 365)
+```
+
+We replot the time series graph for training set of Madhya Pradesh.
+
+```{r}
+autoplot(MP_train) +
+  ggtitle("Time Series Plot of the Madhaya Pradesh Time-Series") +
+  theme(plot.title = element_text(hjust = 0.5))
+```
+
+Next, we proceed to the modelling portion. 
 First, we have to conduct the stationarity test as plotting a graph sometimes may not be adequate to determine whether the variables are stationary. We use Augmented Dickey-Fuller (ADF) Test in R to determine the stationarity of the data.
 ```{r}
 apply(MP_train, 2, adf.test)
