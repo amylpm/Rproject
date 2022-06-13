@@ -26,7 +26,7 @@ library(ggfortify)
 library(tseries)
 library('vars')
 library('quantmod')
-library(LINselect)
+#library(LINselect)
 library(forecast)
 ```
 
@@ -568,7 +568,7 @@ loc_data$mean_no2[is.na(loc_data$mean_no2)]= mean(loc_data$mean_no2, na.rm = TRU
 rownames(loc_data)<- loc_data$location
 
 #### drop unnecessary columns
-clean_loc_data<- loc_data %>% select(-c(mean_spm, mean_pm2_5, location))
+clean_loc_data<- loc_data %>% dplyr::select(-c(mean_spm, mean_pm2_5, location))
 
 head(clean_loc_data)
 ```
