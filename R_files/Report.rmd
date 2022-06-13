@@ -10,7 +10,7 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 # Introduction(Puvee)
-
+In the context of expanding urbanisation and industrialisation, air quality monitoring and prediction are becoming more relevant research subjects. As a result, effective air quality parameter modelling is critical since it allows for the identification of current and future air pollution consequences. In recent years, the Indian National Capital Territory of Delhi (NCT-Delhi) has been the world's most polluted metropolis due to a dramatic increase in air pollution levels. Hence, the dataset regarding Air Quality in India collected from 2015-2020 is been analysed to display the city with lowest air quality amoung the cities of India.
 # Data Preprocessing with Exploratory Data Analysis (EDA)
 ## Load Libraries
 ```{r import library, message=FALSE}
