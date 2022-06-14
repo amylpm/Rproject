@@ -33,7 +33,6 @@ library(ggfortify)
 library(tseries)
 library('vars')
 library('quantmod')
-#library(LINselect)
 library(forecast)
 ```
 
@@ -76,7 +75,7 @@ head(df)
 ```
 
 
-## Exploratary Data Analysis - Univariate  
+## Exploratory Data Analysis - Univariate  
 
 Let's observe the other variables one by one. 
 
@@ -116,7 +115,7 @@ ggplot(plotdata, aes(x = reorder(location, n),y=pct)) +
 Top 10 recording location is displayed. Guwahati have the highest percentage of recording. 
 
 
-### Categorical Variable - Type
+### Categorical variable - Type
 ```{r plot Type}
 plotdata <- df %>%
   count(type) %>%
@@ -162,7 +161,7 @@ p1
 
 Now there is only 3 groups in area type.
 
-### 4. Numerical Vairable - Sulfur dioxide (SO2), Nitrogen dioxide (nO2), Respirable Suspended Particulate Matter (rspm), Suspended particulate matter (spm), Fine particulate matter (pm2.5)
+### 4. Numerical Vairable - Sulfur dioxide (so2), Nitrogen dioxide (no2), Respirable Suspended Particulate Matter (rspm), Suspended particulate matter (spm), Fine particulate matter (pm2.5)
 ```{r plot numeric}
 plot1=ggplot(df, aes(x = so2)) +
   geom_histogram(binwidth=0.1, breaks= seq(0,100), colour="black", fill = "lightgreen")
@@ -189,7 +188,7 @@ There are 34646 rows of missing value in "so2", 16233 rows of missing value in â
 We can observe that all so2, no2, rspm, spm and pm2_5 is right skewed, data scattered around lower value.
 
 
-## Creating Clean Data set for multivariate EDA
+## Creating clean data set for multivariate EDA
 
 
 ```{r plot subset2}
@@ -204,7 +203,7 @@ head(df_c)
 We dropped pm2.5 because it is the target variable and it is only available for last 2 year. 
 We dropped date because clustering model no need time variable. 
 
-### Cleaning Missing Values
+### Cleaning missing Values
 
 ```{r plot subset2 missing value 1}
 for(i in 1:7){
@@ -235,7 +234,7 @@ head(df_c)
 str(df_c)
 ```
 
-### Export Subset if needed
+### Export subset if needed
 
 ```{r export subset2 csv}
 #data_c_path = paste0(datadir, "/data_c.csv")
@@ -246,7 +245,7 @@ str(df_c)
 
 ### Exploratory Data Analysis - Multivariate  
 
-### 1. correlation
+### 1. Correlation
 ```{r plot correlation}
 #pairs(~ so2 + no2 + rspm + spm, data=df_c, col = 'blue')
 #plot(df_c)
