@@ -650,7 +650,7 @@ discovered that Maharashtra have most observations among other cities; in terms 
 
 1. SO2 concentration of Mizoram was found to be lowest and highest was of Uttaranchal.
 2. NO2 concentration of Mizoram was found to be lowest and highest was of West Bengal.
-3. RSPM concentration was found critical in all cities among which low critical level was found in Sikkim and extreme critical levels were found in Uttar Pradesh and Dehli.
+3. RSPM concentration was found critical in all cities among which low critical level was found in Sikkim and extreme critical levels were found in Uttar Pradesh and Delhi.
 4. SPM concentration was found very critical in all in all cities among which low critical level was found in Sikkim and extreme critical levels were found in Delhi.
 5. Mostly concentration of pollutants was found to be higher industrial areas.
 
