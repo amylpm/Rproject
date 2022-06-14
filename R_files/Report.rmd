@@ -9,10 +9,10 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-# Introduction(Puvee)
+# Introduction
 In the context of expanding urbanisation and industrialisation, air quality monitoring and prediction are becoming more relevant research subjects. As a result, effective air quality parameter modelling is critical since it allows for the identification of current and future air pollution consequences. In recent years, India has been the world's top 5 most polluted country with 58.1 Air Quality Index(AQI) in 2022 due to a dramatic increase in air pollution levels. Hence, the data set regarding Air Quality in India collected from 2015-2020 is been analysed to display the city with lowest air quality among the cities of India.In this data set the air quality has been tested with 7 types of air pollutant which are Particulate Matter (PM2.5), Particulate Matter(PM10), Nitrogen Dioxide(NO2), Ammonia(NH3), Sulphur Dioxide(SO2), Carbon Monoxide(CO) and Ozone(O3).
 
-# Objective(Puvee)
+# Objective
 
 1. To describe the history of movement of air air pollutant with time.
 2. To develop clustering which is unsupervised machine learning technique to identify cities (location) with similar air quality.
@@ -643,7 +643,7 @@ print(clus_vis_rspm)
 From the plot, we see that cities in cluster 6, 7 and 8 have high values in all 3 features, which represents low air quality. Interestingly, these clusters have significantly high value in exactly 1 of the feature: cluster 6 is high in RSPM, cluster 7 in SO2 and cluster 8 in NO2.
 For the others, cities in cluster 5 have the best air quality with lowest value in all 3 features. Cluster 2, 3, 4 have moderate value in all 3 features while cluster 1 has moderate value in SO2 and NO2 but with high RSPM.
 
-## Discussion ()
+## Discussion
 
 Upon comparing the concentrations of pollutants in various cities within India 
 discovered that Maharashtra have most observations among other cities; in terms of type of area residential areas has the highest percentage of pollutants in air:
@@ -654,6 +654,6 @@ discovered that Maharashtra have most observations among other cities; in terms 
 4. SPM concentration was found very critical in all in all cities among which low critical level was found in Sikkim and extreme critical levels were found in Delhi.
 5. Mostly concentration of pollutants was found to be higher industrial areas.
 
-## Conclusion (Puvee)
+## Conclusion
 
 From the given data it can be concluded that level of RSPM and PM2.5 are extremely higher in all cities of India. Furthermore, Jharkhand have the highest SO2 concentration in the air. West Bengal have the highest NO2 concentration in the air. Punjab have the highest RSPM index. Delhi have the highest SPM index.The major cause of generation of pollutants was similar across the states of India which was residential area. By carrying out exploratory data analysis, creating time series regression model and clustering technique able to visualize the condition of air quality in India deeply in different circumstances.Furthermore, the collected data can be utilized to model various pollutant behavior scenarios in the context of changing air quality policies or pollution generating patterns.Hence, the government of India should implement more efforts to make air quality monitoring a national priority by raising awareness and enforcing key laws and regulations to reduce pollution levels in the air.
