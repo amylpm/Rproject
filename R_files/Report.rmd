@@ -19,6 +19,9 @@ In the context of expanding urbanisation and industrialisation, air quality moni
 3. To develop a time series regression model for prediction.
 
 # Data Preprocessing with Exploratory Data Analysis (EDA)
+
+We utilize the India Air Quality Data from Kaggle. https://www.kaggle.com/datasets/shrutibhargava94/india-air-quality-data
+
 ## Load Libraries
 ```{r import library, message=FALSE}
 library(ggplot2)
@@ -76,7 +79,7 @@ head(df)
 
 ## Exploratory Data Analysis - Univariate  
 
-Let's observe the other variables one by one. 
+Let's observe the variables one by one. 
 
 ### Categorical variable - State
 ```{r plot state}
@@ -128,7 +131,7 @@ ggplot(plotdata, aes(x = reorder(type, n), y=pct)) +
   labs(y = "Percentage", x="Area Type", title = "Percentage of Recording From Each Type of Area")
 ```
 
-We can group the data into "residual", "industrial" and "others" class. 
+There are many group carrying repetitive meaning, we can group the data into "residual", "industrial" and "others" class. 
 
 ```{r plot Type1}
 df$type[df$type %in% "Residential, Rural and other Areas"] <- "Residential"
@@ -210,7 +213,7 @@ for(i in 1:7){
   print(paste(names(df_c[i]),x))}
 ```
 
-so2,no2,rspm and spm have missing values
+The variables are have missing values.
 
 ```{r plot subset2 cleaning 1}
 df_c$so2[is.na(df_c$so2)]= mean(df_c$so2, na.rm = TRUE)
@@ -293,10 +296,9 @@ ggplot(plotdata, aes(x = reorder(state, mean_1), y = mean_1)) +
 
 ```
 
-Jharkhand have the highest SO2 concentration in the air. 
+Uttarachai have the highest SO2 concentration in the air. 
 West Bengal have the highest NO2 concentration in the air.
-Punjab have the highest RSPM index.
-Delhi have the highest SPM index.
+Delhi have the highest RSPM index and SPM index.
 
 #### Numerical variables with type
 ```{r plot so2 type}
@@ -344,8 +346,10 @@ Industrial area have highest So2 concentration, No2 concentration, RSPM index an
 
 
 
-##  Create Subset
+##  Preprocessing for Time Series Regression Model
+
 ### Create Subset for Time Series Regression Model
+
 From the original data set, we also produce a clean data for time series regression purposes. 
 The goal is to create a data set for predicting pm2.5 using the data from year 2014 and 2015. 
 ```{r plot subset1}
@@ -483,6 +487,7 @@ apply(MP_train, 2, adf.test)
 ```
 
 Since all data is stationary, we may proceed to modelling without differencing. We will utilize the Vector Autoregression model (VAR) to capture the relationship within a multivariate time series. Next, we will determine the lag p for the VAR(p) model. 
+
 ```{r}
 VARselect(MP_train, 
           type = "none", #type of deterministic regressors to include. We use none because the time series was made stationary using differencing above. 
@@ -490,6 +495,7 @@ VARselect(MP_train,
 ```
 
 The highest lag according to the lag selection is 10. We proceed by creating the model.
+
 ```{r}
 var.a <- vars::VAR(MP_train,
                    lag.max = 10, #highest lag order for lag length selection according to the choosen ic
@@ -498,11 +504,13 @@ var.a <- vars::VAR(MP_train,
 ```
 
 The result summaries of the VAR model fitting function. 
+
 ```{r}
 summary(var.a)
 ```
 
 We will use Granger test for causality where the null hypothesis is the lagged x-values do not explain the variation in y. In other words, it assumes that independent variable does not cause the dependent variable. All variable of multivariate time series have to be stationary for causality function to give reliable results.
+
 ```{r}
 causality(var.a, #VAR model
           cause = c("pm2_5")) #dependent variable. If not specified then first column of x is used. Multiple variables can be used. 
@@ -510,6 +518,7 @@ causality(var.a, #VAR model
 The results shows that the null hypothesis is rejected and the independent variables can explain the PM 2.5.
 
 Since the model is adequate, we proceed with forecasting and plot the forecast.
+
 ```{r}
 fcast = predict(var.a, n.ahead =30) # we forecast over a month
 par(mar = c(2.5,2.5,2.5,2.5))
@@ -517,6 +526,7 @@ plot(fcast)
 ```
 
 We continue with evaluation.
+
 ```{r}
 f.val= fcast$fcst$pm2_5[,1]
 a.val= MP_test[['pm2_5']] # the accuracy requires numeric vector only. 
@@ -668,4 +678,4 @@ discovered that Maharashtra have most observations among other cities; in terms 
 
 ## Conclusion
 
-From the given data it can be concluded that level of RSPM and PM2.5 are extremely higher in all cities of India. Furthermore, Jharkhand have the highest SO2 concentration in the air. West Bengal have the highest NO2 concentration in the air. Punjab have the highest RSPM index. Delhi have the highest SPM index. The major cause of generation of pollutants was similar across the states of India which was residential area. By carrying out exploratory data analysis, creating time series regression model and clustering technique able to visualize the condition of air quality in India deeply in different circumstances. Furthermore, the collected data can be utilized to model various pollutant behavior scenarios in the context of changing air quality policies or pollution generating patterns. Hence, the government of India should implement more efforts to make air quality monitoring a national priority by raising awareness and enforcing key laws and regulations to reduce pollution levels in the air.
+From the given data it can be concluded that level of RSPM and PM2.5 are extremely higher in all cities of India. Furthermore, Uttarachai have the highest SO2 concentration in the air. West Bengal have the highest NO2 concentration in the air. Delhi have the highest RSPM index and SPM index. The major cause of generation of pollutants was similar across the states of India which was industrial area. By carrying out exploratory data analysis, creating time series regression model and clustering technique able to visualize the condition of air quality in India deeply in different circumstances. Furthermore, the collected data can be utilized to model various pollutant behavior scenarios in the context of changing air quality policies or pollution generating patterns. Hence, the government of India should implement more efforts to make air quality monitoring a national priority by raising awareness and enforcing key laws and regulations to reduce pollution levels in the air.
