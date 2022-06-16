@@ -10,7 +10,7 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 # Introduction
-In the context of expanding urbanisation and industrialisation, air quality monitoring and prediction are becoming more relevant research subjects. As a result, effective air quality parameter modelling is critical since it allows for the identification of current and future air pollution consequences. In recent years, India has been the world's top 5 most polluted country with 58.1 Air Quality Index(AQI) in 2022 due to a dramatic increase in air pollution levels. Hence, the data set regarding Air Quality in India collected from 2015-2020 is been analysed to display the city with lowest air quality among the cities of India. In this data set the air quality has been tested with 7 types of air pollutant which are Particulate Matter (PM2.5), Particulate Matter(PM10), Nitrogen Dioxide(NO2), Ammonia(NH3), Sulphur Dioxide(SO2), Carbon Monoxide(CO) and Ozone(O3).
+In the context of expanding urbanisation and industrialisation, air quality monitoring and prediction are becoming more relevant research subjects. As a result, effective air quality parameter modelling is critical since it allows for the identification of current and future air pollution consequences. In recent years, India has been the world's top 5 most polluted country with 58.1 Air Quality Index(AQI) in 2022 due to a dramatic increase in air pollution levels. Hence, the data set regarding Air Quality in India collected from 1990-2015 is been analysed to display the city with lowest air quality among the cities of India. In this data set the air quality has been tested with 7 types of air pollutant which are Particulate Matter (PM2.5), Particulate Matter(PM10), Nitrogen Dioxide(NO2), Ammonia(NH3), Sulphur Dioxide(SO2), Carbon Monoxide(CO) and Ozone(O3).
 
 # Objective
 
@@ -37,7 +37,6 @@ library(forecast)
 ```
 
 ## Load Dataset
-YLT: I changed this part, now u can just run and the path is set automatically
 ```{r load dataset}
 main_dir<- dirname(dirname(rstudioapi::getSourceEditorContext()$path))
 datadir<- paste0(main_dir,"/data")
@@ -65,7 +64,7 @@ so2,no2,rspm,spm and pm2_5 are numerical variables with missing values.
 
 Since "sampling_date" carry same meaning as "date", we may drop it. 
 
-stn_code, location, agency and location_monitoring_station also seen carry same meaning with state, we may drop it too.
+stn_code, agency and location_monitoring_station also seen carry same meaning with state, we may drop it too.
 ```{r drop sampling_date}
 df$sampling_date=NULL
 df$stn_code=NULL
@@ -159,7 +158,7 @@ p1<-ggplot(plotdata, aes(x = reorder(type, n), y=pct)) +
 p1
 ```
 
-Now there is only 3 groups in area type.
+Now there is only 3 groups in area type. Industrial Area have the highest recording.
 
 ### 4. Numerical Vairable - Sulfur dioxide (so2), Nitrogen dioxide (no2), Respirable Suspended Particulate Matter (rspm), Suspended particulate matter (spm), Fine particulate matter (pm2.5)
 ```{r plot numeric}
@@ -253,7 +252,7 @@ knitr::include_graphics("plot correlation-1.png")
 knitr::include_graphics("plot correlation-2.png")
 ```
 
-so2 and no2 seem to have slightly positive relationship while the others variables seem like having poor relationship. 
+so2 and no2 seem to have slightly positive relationship and same for rspm and spm, while the others variables seem like having poor relationship.
 
 
 ### 2. Bivarite plot
