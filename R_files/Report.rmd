@@ -186,8 +186,6 @@ print(plot4, vp = vplayout(4, 1))
 print(plot5, vp = vplayout(5, 1))
 ```
 
-There are 34646 rows of missing value in "so2", 16233 rows of missing value in “no2”, 40222 rows of missing value in “rspm”, 237387 rows of missing value in “spm”, 426428 rows of missing value in “pm2_5”.
-
 We can observe that all so2, no2, rspm, spm and pm2_5 is right skewed, data scattered around lower value.
 
 
@@ -214,7 +212,7 @@ for(i in 1:7){
   print(paste(names(df_c[i]),x))}
 ```
 
-The variables are have missing values.
+There are 34646 rows of missing value in "so2", 16233 rows of missing value in “no2”, 40222 rows of missing value in “rspm”, 237387 rows of missing value in “spm”, 426428 rows of missing value in “pm2_5”.
 
 ```{r plot subset2 cleaning 1}
 df_c$so2[is.na(df_c$so2)]= mean(df_c$so2, na.rm = TRUE)
