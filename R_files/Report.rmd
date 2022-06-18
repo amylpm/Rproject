@@ -1,6 +1,6 @@
 ---
 title: "RProject"
-author: "Amy Lang(S2127213), Chen Yu Qi (17068721), Yeoh Li Tian(s2120306), Puveemalr Parameswaran(s2127371), Qi Han(s2123517)"
+author: "Amy Lang(S2127213), Chen Yu Qi (17068721), Yeoh Li Tian(s2120306), Puveemalar Parameswaran(s2127371), Qi Han(s2123517)"
 date: "6/5/2022"
 output: html_document
 ---
